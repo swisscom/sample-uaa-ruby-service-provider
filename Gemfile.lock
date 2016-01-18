@@ -1,0 +1,31 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    cf-uaa-lib (1.3.10)
+      multi_json
+    hashie (3.4.3)
+    multi_json (1.11.2)
+    omniauth (1.3.1)
+      hashie (>= 1.2, < 4)
+      rack (>= 1.0, < 3)
+    omniauth-uaa-oauth2 (0.0.3)
+      cf-uaa-lib (>= 1.3.1, < 2.0)
+      omniauth (~> 1.0)
+    rack (1.6.4)
+    rack-protection (1.5.3)
+      rack
+    sinatra (1.4.6)
+      rack (~> 1.4)
+      rack-protection (~> 1.4)
+      tilt (>= 1.3, < 3)
+    tilt (2.0.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  omniauth-uaa-oauth2
+  sinatra
+
+BUNDLED WITH
+   1.10.6
