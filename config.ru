@@ -24,31 +24,42 @@ class App < Sinatra::Base
   # to fix 'Forbidden errors': http://stackoverflow.com/questions/10509774/sinatra-and-rack-protection-setting
   set :protection, :except => [:json_csrf]
 
-  get '/' do
-    <<-HTML
-    <ul>
-      <li><a href='/auth/cloudfoundry'>Sign in with Cloud Foundry</a></li>
-    </ul>
-    HTML
+  get '/auth/cloudfoundry/callback' do
+    session['auth_hash'] = request.env['omniauth.auth'].to_hash
+    redirect session['redirect_to']
   end
 
-  get '/auth/cloudfoundry/callback' do
-    content_type 'application/json'
-    request.env['omniauth.auth'].to_hash.to_json rescue "No Data"
-  end
-  
   get '/auth/failure' do
     content_type 'text/plain'
     request.env['omniauth.auth'].to_hash.inspect rescue "No Data"
   end
+
+  get '/*' do
+    pass if request.env['REQUEST_PATH'] == '/favicon.ico'
+
+    unless session.key? 'auth_hash'
+      session['redirect_to'] = request.env['REQUEST_PATH']
+
+      <<-HTML
+    <ul>
+      <li><a href='/auth/cloudfoundry'>Sign in with Cloud Foundry</a></li>
+    </ul>
+      HTML
+    else
+      <<-HTML
+    Requested path: #{request.env['REQUEST_PATH']}<br/><br/>
+    User info: #{session['auth_hash']}
+      HTML
+    end
+  end
 end
 
-use Rack::Session::Cookie, :secret => ENV['RACK_COOKIE_SECRET']
+use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV['RACK_COOKIE_SECRET']
 
 use OmniAuth::Builder do
   uaa_url = ENV['UAA_URL']
-  provider :cloudfoundry, ENV['UAA_CLIENT_ID'], ENV['UAA_CLIENT_SECRET'], 
-    {:auth_server_url => uaa_url, :token_server_url => uaa_url}
+  provider :cloudfoundry, ENV['UAA_CLIENT_ID'], ENV['UAA_CLIENT_SECRET'],
+           {:auth_server_url => uaa_url, :token_server_url => uaa_url}
 end
 
 run App.new
