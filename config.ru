@@ -39,10 +39,10 @@ class App < Sinatra::Base
 
     unless session.key? 'auth_hash'
       session['redirect_to'] = request.env['REQUEST_PATH']
-
+      target_desc = ENV['TARGET_DESC'] || 'SSO'
       <<-HTML
     <ul>
-      <li><a href='/auth/cloudfoundry'>Sign in with Cloud Foundry</a></li>
+      <li><a href='/auth/cloudfoundry'>Sign in with #{target_desc}</a></li>
     </ul>
       HTML
     else
