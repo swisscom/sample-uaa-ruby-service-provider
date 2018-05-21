@@ -36,7 +36,9 @@ class App < Sinatra::Base
 
   get '/logout' do
     session.clear
-    redirect '/'
+    # landing page = <app-url>/ (cut off path)
+    landing_page = request.env['REQUEST_URI'].gsub request.env['REQUEST_PATH'], ''
+    redirect "#{ENV['UAA_URL']}?logout.do?client_id=#{ENV['UAA_CLIENT_ID']}&redirect=#{CGI::escape landing_page}"
   end
 
   get '/*' do
