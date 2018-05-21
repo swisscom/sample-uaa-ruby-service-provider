@@ -34,6 +34,11 @@ class App < Sinatra::Base
     request.env['omniauth.auth'].to_hash.inspect rescue "No Data"
   end
 
+  get '/logout' do
+    session.clear
+    redirect '/'
+  end
+
   get '/*' do
     pass if request.env['REQUEST_PATH'] == '/favicon.ico'
 
@@ -48,7 +53,8 @@ class App < Sinatra::Base
     else
       <<-HTML
     Requested path: #{request.env['REQUEST_PATH']}<br/><br/>
-    User info: #{session['auth_hash']}
+    User info: #{session['auth_hash']}<br/><br/>
+    <a href='/logout'>Logout</a>
       HTML
     end
   end
