@@ -72,7 +72,7 @@ use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV[
 use OmniAuth::Builder do
   uaa_url = ENV['UAA_URL']
   provider :cloudfoundry, ENV['UAA_CLIENT_ID'], ENV['UAA_CLIENT_SECRET'],
-           {:auth_server_url => uaa_url, :token_server_url => uaa_url}
+           {:auth_server_url => uaa_url, :token_server_url => uaa_url, :scope => 'openid, roles'}
 end
 
 run App.new
