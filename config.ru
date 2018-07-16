@@ -24,6 +24,11 @@ class App < Sinatra::Base
   # to fix 'Forbidden errors': http://stackoverflow.com/questions/10509774/sinatra-and-rack-protection-setting
   set :protection, :except => [:json_csrf]
 
+  # to fix Rack::Session::Cookie data size exceeds 4K & Rack::Session::Cookie failed to save session. Content dropped.
+  # (this happens when the user info hash contains a lot of attributes, i.e. all AD groups)
+  # this effectively means it will store sessions on disk, which will only work with 1 instance
+  use Rack::Session::Pool
+
   get '/auth/cloudfoundry/callback' do
     session['auth_hash'] = request.env['omniauth.auth'].to_hash
     redirect session['redirect_to']
@@ -61,8 +66,6 @@ class App < Sinatra::Base
     end
   end
 end
-
-use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV['RACK_COOKIE_SECRET']
 
 use OmniAuth::Builder do
   uaa_url = ENV['UAA_URL']
