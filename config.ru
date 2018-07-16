@@ -67,6 +67,8 @@ class App < Sinatra::Base
   end
 end
 
+use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV['RACK_COOKIE_SECRET']
+
 use OmniAuth::Builder do
   uaa_url = ENV['UAA_URL']
   provider :cloudfoundry, ENV['UAA_CLIENT_ID'], ENV['UAA_CLIENT_SECRET'],
