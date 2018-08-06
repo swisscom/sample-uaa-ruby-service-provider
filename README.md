@@ -6,7 +6,7 @@ Although it needs this library that's tailored for UAA interaction, any OAuth2 l
 
 It is primarily designed to run on CloudFoundry, since it expects the OAuth2 configuration to be passed in `VCAP_SERVICES`.
 
-## Scope
+## How it works
 When the `Sign in` link is clicked by an unauthorized user,
 it redirects the user to UAA as IDP (standard OAuth2 `Authorization code` flow).
 
