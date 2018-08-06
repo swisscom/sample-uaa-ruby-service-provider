@@ -13,7 +13,8 @@ it redirects the user to UAA as IDP (standard OAuth2 `Authorization code` flow).
 When the user logs in on UAA provider, he is redirected back to the sample app.
 The app completes the OAuth2 flow and receives the user's info (using the Userinfo endpoint), i.e. its attributes like firstname, lastname.
 
-*Disclaimer: Not for production use*
+**Disclaimer: Not for production use**
+
 Although it is meant to be pushed on CF, be aware that this app can only run one instance (since it's using the File based session store, because the Cookie store limit of 4k is easily exceeded with UAA's large tokens when syncing a large number of groups).
 So, do not use this demo app for production. If you have to do so, you can base on this code, but please use a prod-ready the session store (i.e. with Redis or DBMS backend) to be able to run it with multiple instances.
 
