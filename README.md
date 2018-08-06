@@ -18,6 +18,7 @@ Although it is meant to be pushed on CF, be aware that this app can only run one
 So, do not use this demo app for production. If you have to do so, you can base on this code, but please use a prod-ready the session store (i.e. with Redis or DBMS backend) to be able to run it with multiple instances.
 
 ## Configure, deploy and test
+```
 cf push sample-uaa --random-route --no-start -i 1
 
 # Now create the user provided service which will be provided to the app in `VCAP_SERVICES`.
@@ -28,7 +29,6 @@ cf create-user-provided-service OAUTH2-CLIENT -p $CREDENTIALS
 # Bind & start the app to make the service instance available
 cf bind-service sample-uaa OAUTH2-CLIENT
 cf start sample-app
-```
 
 Now access the app in your browser.
 ```
