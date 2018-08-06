@@ -21,6 +21,9 @@ require 'sinatra'
 require 'omniauth'
 require 'omniauth-uaa-oauth2'
 
+CREDS = CF::App::Credentials.find_by_service_tag('oauth2')
+abort("No service with tag oauth2 found!") if CREDS.nil?
+
 class App < Sinatra::Base
   # to fix 'Forbidden errors': http://stackoverflow.com/questions/10509774/sinatra-and-rack-protection-setting
   set :protection, :except => [:json_csrf]
@@ -44,7 +47,7 @@ class App < Sinatra::Base
     session.clear
     # landing page = <app-url>/ (cut off path)
     landing_page = request.env['REQUEST_URI'].gsub request.env['REQUEST_PATH'], ''
-    redirect "#{ENV['UAA_URL']}/logout.do?client_id=#{ENV['UAA_CLIENT_ID']}&redirect=#{CGI::escape landing_page}"
+    redirect "#{CREDS['logoutEndpoint']}?client_id=#{CREDS['clientId']}&redirect=#{CGI::escape landing_page}"
   end
 
   get '/*' do
@@ -71,9 +74,8 @@ end
 use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV['RACK_COOKIE_SECRET']
 
 use OmniAuth::Builder do
-  uaa_url = ENV['UAA_URL']
-  provider :cloudfoundry, ENV['UAA_CLIENT_ID'], ENV['UAA_CLIENT_SECRET'],
-           {:auth_server_url => uaa_url, :token_server_url => uaa_url, :scope => 'openid, roles'}
+  provider :cloudfoundry, CREDS['clientId'], CREDS['clientSecret'],
+           {:auth_server_url => CREDS['authorizationEndpoint'], :token_server_url => CREDS['tokenEndpoint'], :scope => 'openid, roles'}
 end
 
 run App.new
