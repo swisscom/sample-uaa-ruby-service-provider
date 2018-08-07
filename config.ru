@@ -20,6 +20,7 @@ require 'bundler'
 require 'sinatra'
 require 'omniauth'
 require 'omniauth-uaa-oauth2'
+require 'cf-app-utils'
 
 CREDS = CF::App::Credentials.find_by_service_tag('oauth2')
 abort("No service with tag oauth2 found!") if CREDS.nil?
