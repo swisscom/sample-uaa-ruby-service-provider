@@ -78,7 +78,7 @@ use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV[
 use OmniAuth::Builder do
   # omnitauth needs only base url and not specific auth and token endpoints. so we just use the base url of authorizationEndpoint
   auth_uri = URI(CREDS['authorizationEndpoint'])
-  uaa_url = "#{uri.scheme}://#{uri.host}"
+  uaa_url = "#{auth_uri.scheme}://#{auth_uri.host}"
   provider :cloudfoundry, CREDS['clientId'], CREDS['clientSecret'],
            {:auth_server_url => uaa_url, :token_server_url => uaa_url, :scope => 'openid, roles'}
 end
