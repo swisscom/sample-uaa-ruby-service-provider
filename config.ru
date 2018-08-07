@@ -21,6 +21,7 @@ require 'sinatra'
 require 'omniauth'
 require 'omniauth-uaa-oauth2'
 require 'cf-app-utils'
+require 'uri'
 
 CREDS = CF::App::Credentials.find_by_service_tag('oauth2')
 abort("No service with tag oauth2 found!") if CREDS.nil?
@@ -75,8 +76,11 @@ end
 use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV['RACK_COOKIE_SECRET']
 
 use OmniAuth::Builder do
+  # omnitauth needs only base url and not specific auth and token endpoints. so we just use the base url of authorizationEndpoint
+  auth_uri = URI(CREDS['authorizationEndpoint'])
+  uaa_url = "#{uri.scheme}://#{uri.host}"
   provider :cloudfoundry, CREDS['clientId'], CREDS['clientSecret'],
-           {:auth_server_url => CREDS['authorizationEndpoint'], :token_server_url => CREDS['tokenEndpoint'], :scope => 'openid, roles'}
+           {:auth_server_url => uaa_url, :token_server_url => uaa_url, :scope => 'openid, roles'}
 end
 
 run App.new
