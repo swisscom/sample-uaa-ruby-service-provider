@@ -80,7 +80,7 @@ use OmniAuth::Builder do
   auth_uri = URI(CREDS['authorizationEndpoint'])
   uaa_url = "#{auth_uri.scheme}://#{auth_uri.host}"
   provider :cloudfoundry, CREDS['clientId'], CREDS['clientSecret'],
-           {:auth_server_url => uaa_url, :token_server_url => uaa_url, :scope => 'openid, roles, user_attributes'}
+           {:auth_server_url => uaa_url, :token_server_url => uaa_url, :scope => CREDS['scope']}
 end
 
 run App.new
