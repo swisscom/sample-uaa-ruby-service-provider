@@ -1,5 +1,8 @@
-# Sample service provider for UAA
-This demo app authenticates its users against UAA as a identity provider.
+# Sample ruby OAuth2 service provider for UAA
+This demo app in ruby authenticates its users against UAA as a identity provider.
+It saves its session (and JWT) in the backend.
+For this architecture scenario, it uses the `authorization_code` grant type and acts as OAuth2 service provider.
+
 It's roughly based on https://github.com/cloudfoundry/omniauth-uaa-oauth2/blob/master/examples/config.ru and uses this library.
 
 Although it needs this library that's tailored for UAA interaction, any OAuth2 library should do.
@@ -20,7 +23,7 @@ So, do not use this demo app for production. If you have to do so, you can base 
 
 ## Configure, deploy and test
 ```
-cf push sample-uaa --random-route --no-start -i 1
+cf push sample-app --random-route --no-start -i 1
 
 # Now create the user provided service which will be provided to the app in `VCAP_SERVICES`.
 # The client specified here must be created manually beforehand on the OAuth2 provider.
@@ -35,5 +38,16 @@ Now access the app in your browser.
 ```
 
 
-## Other applications
-For a Spring boot demo app, check out https://github.com/swisscom/oauth2-simple.
+## Sample overview
+### Authorization code
+- Service provider (Spring boot): https://github.com/swisscom/sample-uaa-spring-boot-service-provider
+- Service provider (Ruby): https://github.com/swisscom/sample-uaa-ruby-service-provider
+
+### Implicit flow & Client Credentials
+- Client (VueJS): https://github.com/swisscom/sample-uaa-vue-client
+- Client (React & Redux):https://github.com/swisscom/sample-uaa-react-redux-client
+- Client (AngularJS): https://github.com/swisscom/sample-uaa-angular-client
+
+- Resource Server (Spring boot): https://github.com/swisscom/sample-uaa-spring-boot-resource-server"
+- Resource Server (Ruby): https://github.com/swisscom/sample-uaa-ruby-resource-server
+
