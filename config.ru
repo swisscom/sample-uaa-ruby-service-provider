@@ -22,13 +22,14 @@ require 'omniauth'
 require 'omniauth-uaa-oauth2'
 require 'cf-app-utils'
 require 'uri'
+require 'webrick'
 
 CREDS = CF::App::Credentials.find_by_service_tag('oauth2')
 abort("No service with tag oauth2 found!") if CREDS.nil?
 
 class App < Sinatra::Base
   # to fix 'Forbidden errors': http://stackoverflow.com/questions/10509774/sinatra-and-rack-protection-setting
-  set :protection, :except => [:json_csrf]
+  set :protection, :except => [:json_csrf], :logging => Logger::DEBUG
 
   # to fix Rack::Session::Cookie data size exceeds 4K & Rack::Session::Cookie failed to save session. Content dropped.
   # (this happens when the user info hash contains a lot of attributes, i.e. all AD groups)
@@ -37,7 +38,8 @@ class App < Sinatra::Base
 
   get '/auth/cloudfoundry/callback' do
     session['auth_hash'] = request.env['omniauth.auth'].to_hash
-    redirect session['redirect_to']
+    puts "Redirect to #{session['redirect_to']}"
+    redirect to("#{URI.escape(session['redirect_to'])}")
   end
 
   get '/auth/failure' do
@@ -60,7 +62,7 @@ class App < Sinatra::Base
       target_desc = ENV['TARGET_DESC'] || 'SSO'
       <<-HTML
     <ul>
-      <li><a href='/auth/cloudfoundry'>Sign in with #{target_desc}</a></li>
+      <li><a href='/auth/cloudfoundry/callback'>Sign in with #{target_desc}</a></li>
     </ul>
       HTML
     else
@@ -73,7 +75,11 @@ class App < Sinatra::Base
   end
 end
 
-use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV['RACK_COOKIE_SECRET']
+use Rack::Session::Cookie,
+  key: 'rack.omniauth-login-only',
+  path: '/',
+  expire_after: 2592000, # In seconds
+  secret: ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
 
 use OmniAuth::Builder do
   # omnitauth needs only base url and not specific auth and token endpoints. so we just use the base url of authorizationEndpoint
