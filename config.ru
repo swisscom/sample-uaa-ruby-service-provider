@@ -22,6 +22,7 @@ require 'omniauth'
 require 'omniauth-uaa-oauth2'
 require 'cf-app-utils'
 require 'uri'
+require 'webrick'
 
 CREDS = CF::App::Credentials.find_by_service_tag('oauth2')
 abort("No service with tag oauth2 found!") if CREDS.nil?
@@ -29,11 +30,6 @@ abort("No service with tag oauth2 found!") if CREDS.nil?
 class App < Sinatra::Base
   # to fix 'Forbidden errors': http://stackoverflow.com/questions/10509774/sinatra-and-rack-protection-setting
   set :protection, :except => [:json_csrf]
-
-  # to fix Rack::Session::Cookie data size exceeds 4K & Rack::Session::Cookie failed to save session. Content dropped.
-  # (this happens when the user info hash contains a lot of attributes, i.e. all AD groups)
-  # this effectively means it will store sessions on disk, which will only work with 1 instance
-  use Rack::Session::Pool
 
   get '/auth/cloudfoundry/callback' do
     session['auth_hash'] = request.env['omniauth.auth'].to_hash
@@ -73,9 +69,19 @@ class App < Sinatra::Base
   end
 end
 
-use Rack::Session::Cookie, :key => 'rack.session', :path => '/', :secret => ENV['RACK_COOKIE_SECRET']
+use Rack::Session::Cookie,
+  :key => 'rack.session',
+  :path => '/',
+  :expire_after => 2592000, # In seconds
+  :secret => ENV.fetch('SESSION_SECRET') { SecureRandom.hex(64) }
+
+# to fix Rack::Session::Cookie data size exceeds 4K & Rack::Session::Cookie failed to save session. Content dropped.
+# (this happens when the user info hash contains a lot of attributes, i.e. all AD groups)
+# this effectively means it will store sessions on disk, which will only work with 1 instance
+use Rack::Session::Pool
 
 use OmniAuth::Builder do
+  OmniAuth.config.allowed_request_methods = %i[get]
   # omnitauth needs only base url and not specific auth and token endpoints. so we just use the base url of authorizationEndpoint
   auth_uri = URI(CREDS['authorizationEndpoint'])
   uaa_url = "#{auth_uri.scheme}://#{auth_uri.host}"
