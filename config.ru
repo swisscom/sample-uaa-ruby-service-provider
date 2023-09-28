@@ -29,7 +29,7 @@ abort("No service with tag oauth2 found!") if CREDS.nil?
 
 class App < Sinatra::Base
   # to fix 'Forbidden errors': http://stackoverflow.com/questions/10509774/sinatra-and-rack-protection-setting
-  set :protection, :except => [:json_csrf], :logging => Logger::DEBUG
+  set :protection, :except => [:json_csrf]
 
   get '/auth/cloudfoundry/callback' do
     session['auth_hash'] = request.env['omniauth.auth'].to_hash
